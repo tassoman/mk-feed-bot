@@ -28,7 +28,7 @@ sourcelist = [
 load_dotenv()
 db = sqlite3.connect('feedbot.sqlite')
 mk = Misskey('misskey.social', i=os.getenv('MISSKEY_APIKEY'))
-interval = 60*5
+interval = 60*15
 
 def writeNotes():
     c = db.cursor()

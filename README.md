@@ -19,9 +19,12 @@ Follow this instructions:
 
 Please use python3. In latest GNU/Linux distros, it's already in as default. Otherwise you'll need `python3-venv` package with dependencies. 
 
-1. `python -m venv env`
-2. `. env/bin/activate`
-3. `pip install -r requirements.txt`
+1. `python -m venv env` Python sandboxed enviroment creation
+2. `. env/bin/activate` Python environment activation
+3. `pip install -r requirements.txt` Dependencies installation
+4. `cp feedbot.sqlite-EXAMPLE feedbot.sqlite` Database creation
+
+To exit the environment type: `deactivate` . You're aware of activation because of your shell starts with: (env)
 
 ### Fill the bot with RSS feed
 
