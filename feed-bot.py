@@ -66,7 +66,7 @@ def fetchRSS(feed):
             print(err)
 
 def deleteOldNotes():
-    lm = datetime.datetime.now() - datetime.timedelta(minutes=4)
+    lm = datetime.datetime.now() - datetime.timedelta(weeks=4)
     lastMonth = calendar.timegm(lm.timetuple())
     dbc = db.cursor()
     dbc.execute("SELECT id, noteId from news WHERE noted = 1 and publishedAt <= ?", (lastMonth,))
