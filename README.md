@@ -1,6 +1,6 @@
-# feed-bot
+# RSS Newsfeed reader bot for Misskey
 
-RSS Newsfeed reader bot for Misskey
+mk-feed-bot is written in Python, based on _feedparser_ and _Misskey.py_ libs.
 
 ## Setup
 
