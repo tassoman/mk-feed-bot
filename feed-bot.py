@@ -9,37 +9,31 @@ from misskey import Misskey
 from pathlib import Path
 from dotenv import load_dotenv
 
-sourcelist = [
-    'http://rss.slashdot.org/Slashdot/slashdotMain?format=xml',
-    'https://techcrunch.com/feed/',
-    'http://www.theverge.com/rss/frontpage',''
-    'https://mashable.com/feeds/rss/all',
-    'https://www.wired.com/feed/rss',
-    'https://gizmodo.com/rss',
-    'https://www.cnet.com/rss/news/',
-    'https://www.engadget.com/rss.xml',
-    'https://www.zdnet.com/news/rss.xml',
-    'http://rss.nytimes.com/services/xml/rss/nyt/Technology.xml',
-    'http://feeds.bbci.co.uk/news/technology/rss.xml',
-    'http://feeds.howtogeek.com/HowToGeek',
-    'http://feeds.arstechnica.com/arstechnica/technology-lab',
-]
+with open("sources.txt") as f:
+    sourcelist = f.readlines()
+
+sourcelist = [x.strip() for x in sourcelist]
 
 load_dotenv()
 db = sqlite3.connect('feedbot.sqlite')
-mk = Misskey('misskey.social', i=os.getenv('MISSKEY_APIKEY'))
-interval = 60*15
+mk = Misskey(os.getenv('MISSKEY_HOST'), i=os.getenv('MISSKEY_APIKEY'))
+interval = 60 * int(os.getenv('INTERVAL', "60"))
 
 def writeNotes():
+    localOnly = os.getenv('LOCAL_ONLY', 'False').lower() in ('true', '1', 't', 'on', 'ok')
     c = db.cursor()
     c.execute("SELECT * FROM news WHERE noted = '0' ORDER BY publishedAt DESC")
     data = c.fetchall()
     db.commit()
     for row in data:
-#        text = row[1] + ": " + row[4] + "\n\n" + row[3]
+        text = row[1] + ": " + row[4] + "\n\n" + row[3]
         text = row[4] + "\n\n" + row[3]
         try: 
-            note = mk.notes_create(text=text)
+            note = mk.notes_create(
+                text=text,
+                visibility=os.getenv('VISIBILITY', 'public'),
+                local_only=localOnly
+                )
             cc = db.cursor()
             try:
                 cc.execute("UPDATE news SET noted = 1, noteid = ? WHERE id = ? ", (note['createdNote']['id'], row[0]) )
@@ -80,7 +74,6 @@ def deleteOldNotes():
             print(err)
         finally:
             time.sleep(2)
-
     db.commit()
                 
 
