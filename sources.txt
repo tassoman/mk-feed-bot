@@ -1,0 +1,13 @@
+https://rss.slashdot.org/Slashdot/slashdotMain?format=xml
+https://techcrunch.com/feed/
+https://www.theverge.com/rss/frontpage
+https://mashable.com/feeds/rss/all
+https://www.wired.com/feed/rss
+https://gizmodo.com/rss
+https://www.cnet.com/rss/news/
+https://www.engadget.com/rss.xml
+https://www.zdnet.com/news/rss.xml
+https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml
+https://feeds.bbci.co.uk/news/technology/rss.xml
+https://feeds.howtogeek.com/HowToGeek
+https://feeds.arstechnica.com/arstechnica/technology-lab
