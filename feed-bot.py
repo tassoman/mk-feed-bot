@@ -32,6 +32,7 @@ def writeNotes():
             note = mk.notes_create(
                 text=text,
                 visibility=os.getenv('VISIBILITY'),
+                local_only=localOnly
                 )
             cc = db.cursor()
             try:
