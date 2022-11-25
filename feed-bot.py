@@ -14,22 +14,23 @@ load_dotenv()
 pid = 'feed-bot.pid'
 db = sqlite3.connect('feed-bot.sqlite')
 mk = Misskey(os.getenv('HOST'), i=os.getenv('APIKEY'))
-interval = int(os.getenv('MINUTES', "60")) * 60
+interval = int(os.getenv('MINUTES', "60"))
 isLocal = os.getenv('LOCAL', 'False').lower() in ('true', '1', 't', 'on', 'ok')
 dryrun = os.getenv('DRYRUN', 'False').lower() in ('true', '1','t','on','ok')
+
+if dryrun is not True:
+    interval = interval * 60
 
 def writejob():
     c2 = db.cursor()
     q = c2.execute("SELECT * FROM news WHERE noted = '0' ORDER BY publishedAt DESC")
     d = q.fetchone()
     n = {'createdNote': { 'id' : '' }}
-    text = d[1] + ": " + d[4] + "\n\n" + d[3]
-    text = d[4] + "\n\n" + d[3]
+    text = d[1] + ": " + d[4] + "\n\n" + d[5] + "\n\n" + d[3]
     if dryrun is True:
         n['createdNote']['id'] = 'xxx-' + str(d[2])
         n['createdNote']['createdAt'] = '2022-11-25T22:04:07.069Z'
         print(text)
-        print(d[2])
     else:
         try: 
             n = mk.notes_create(
@@ -65,8 +66,9 @@ def fetchFeed(u):
         updated = calendar.timegm(i.updated_parsed)
         try:
             c1.execute(
-                "INSERT INTO news ( source, publishedAt, link, title ) VALUES (?, ?, ?, ?)"
-                , (f.feed.title, updated , link[0], i.title))
+                "INSERT INTO news ( source, publishedAt, link, title, body) VALUES (?, ?, ?, ?, ?)"
+                , (f.feed.title, updated , link[0], i.title, i.summary)
+                )
             db.commit()
         except sqlite3.Error as err:
             continue
