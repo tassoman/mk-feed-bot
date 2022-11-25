@@ -1,4 +1,4 @@
 env/
 .env
-feedbot.pid
-feedbot.sqlite
+feed-bot.pid
+feed-bot.sqlite
