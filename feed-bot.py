@@ -5,6 +5,7 @@ import datetime
 import dateutil.parser
 import calendar
 import json
+import random
 import os
 from misskey import Misskey
 from pathlib import Path
@@ -23,12 +24,18 @@ if dryrun is not True:
 
 def writejob():
     c2 = db.cursor()
-    q = c2.execute("SELECT * FROM news WHERE noted = '0' ORDER BY publishedAt DESC")
+    q = c2.execute("SELECT * FROM news WHERE noted = 0 ORDER BY publishedAt DESC LIMIT 1")
     d = q.fetchone()
     n = {'createdNote': { 'id' : '' }}
-    text = d[1] + ": " + d[4] + "\n\n" + d[5] + "\n\n" + d[3]
+    try:
+        text = d[1] + ": " + d[4] + "\n\n" + d[5] + "\n\n" + d[3]
+    except Exception as err:
+        print('Non ci sono news')
+        time.sleep(interval)
+        return
+
     if dryrun is True:
-        n['createdNote']['id'] = 'xxx-' + str(d[2])
+        n['createdNote']['id'] = 'xxx-' + str(random.randint(111,999999))
         n['createdNote']['createdAt'] = '2022-11-25T22:04:07.069Z'
         print(text)
     else:
@@ -77,8 +84,10 @@ def purgeOld():
     lm = datetime.datetime.now() - datetime.timedelta(weeks=4)
     lastMonth = calendar.timegm(lm.timetuple())
     dbc = db.cursor()
-    dbc.execute("SELECT id, noteId from news WHERE noted = 1 and publishedAt <= ?", (lastMonth,))
+    dbc.execute("SELECT id, noteId from news WHERE noted = 1 and publishedAt >= ?", (lastMonth,))
     data = dbc.fetchall()
+    print('DATA')
+    print(data)
     for row in data:
         if dryrun is not True:
             try:
@@ -89,6 +98,15 @@ def purgeOld():
                 print(err)
             finally:
                 time.sleep(2)
+        else:
+            print(row)
+            try:
+                db.execute("DELETE from news WHERE id = ?", (row[0],))
+                time.sleep(1)
+            except Exception as err:
+                print(err)
+
+    time.sleep(1)
     db.commit()
 
 # MAIN LOOP
@@ -97,76 +115,7 @@ Path(pid).touch()
 while (os.path.exists(pid)):
     fetchjob()
     writejob()
-    purgeOld()
-else:
-    db.close()
-    print('Exit')
+#    purgeOld()
 
-'''
-def writeNotes():
-    localOnly = os.getenv('LOCAL', 'False').lower() in ('true', '1', 't', 'on', 'ok')
-    data = c.fetchall()
-    db.commit()
-    for row in data:
-        text = row[1] + ": " + row[4] + "\n\n" + row[3]
-        text = row[4] + "\n\n" + row[3]
-        try: 
-            note = mk.notes_create(
-                text=text,
-                visibility=os.getenv('VISIBILITY', 'public'),
-                local_only=localOnly
-                )
-            cc = db.cursor()
-            try:
-                cc.execute("UPDATE news SET noted = 1, noteid = ? WHERE id = ? ", (note['createdNote']['id'], row[0]) )
-                db.commit()
-            except sqlite3.Error as err:
-                print(err)
-        except Exception as err:
-            print(err)
-        
-        time.sleep(interval)
-
-def fetchRSS(feed):
-    c = db.cursor()
-    feed = feedparser.parse(feed)
-    for item in feed['entries']:
-        link = item.link.split("?",1)
-        updated = calendar.timegm(item.updated_parsed)
-        try:
-            c.execute(
-                "INSERT INTO news ( source, publishedAt, link, title ) VALUES (?, ?, ?, ?)"
-                , (feed.feed.title, updated , link[0], item.title))
-            db.commit()
-        except sqlite3.Error as err:
-            print(err)
-
-def deleteOldNotes():
-    lm = datetime.datetime.now() - datetime.timedelta(weeks=4)
-    lastMonth = calendar.timegm(lm.timetuple())
-    dbc = db.cursor()
-    dbc.execute("SELECT id, noteId from news WHERE noted = 1 and publishedAt <= ?", (lastMonth,))
-    data = dbc.fetchall()
-    for row in data:
-        try:
-            api = mk.notes_delete(note_id=row[1])
-            if (api is True):
-                db.execute("DELETE from news WHERE id = ?", (row[0],))
-        except Exception as err:
-            print(err)
-        finally:
-            time.sleep(2)
-    db.commit()
-                
-Path('feedbot.pid').touch()
-while (os.path.exists('feedbot.pid')):
-    for url in sourcelist:
-        fetchRSS(url)
-    
-    #writeNotes()
-    deleteOldNotes()
-    time.sleep(interval)
-else:
-    print("uscita!")
-    db.close()
-'''
+db.close()
+print('Exit')
