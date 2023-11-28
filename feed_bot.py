@@ -4,17 +4,23 @@ import sys
 import signal
 import time
 import schedule
+from dotenv import load_dotenv
 from jobs.fetch import install, add_news
 from jobs.delete import purge
 from jobs.create import publish_note
 
+load_dotenv()
+
 # Init
 install()
+add_news()
+publish_note()
+every = os.getenv('EVERY_MINUTES', '60')
 
 ### Schedules
-schedule.every(5).minutes.do(add_news)
-schedule.every().hour.do(purge)
-schedule.every().minute.do(publish_note)
+schedule.every(15).minutes.do(add_news)
+schedule.every(int(every)).minutes.do(publish_note)
+schedule.every().day.do(purge)
 
 PID_FILE = "feed-bot.pid"
 

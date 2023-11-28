@@ -38,7 +38,7 @@ Edit file `sources.txt` and list a RSS url for every line.
 
 Inside your python environment:
 
-`(env) $ python feed-bot.py`
+`(env) $ python feed_bot.py`
 
 It will setup if needed. Then will start three scheduled jobs.
 
