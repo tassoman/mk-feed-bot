@@ -1,4 +1,5 @@
 feedparser
 Misskey.py
 python-dotenv
-python-dateutil
+schedule
+pip-review
