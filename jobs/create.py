@@ -5,7 +5,7 @@ import time
 import os
 from misskey import Misskey
 from dotenv import load_dotenv
-from jobs.sentiment import getSentiment
+from jobs.sentiment import get_sentiment
 
 load_dotenv()
 
@@ -33,7 +33,7 @@ def publish_note():
 
     if data is not None:
         for d in data:
-            sentiment = getSentiment(d[4] + d[5])
+            sentiment = get_sentiment(d[4] + d[5])
             text = "\n<b>" + d[4] + "</b>\n" + d[5] + "<i>(" +d[1] + ")</i>\n\n" + d[3]
             cw = None if sentiment >= 0 else ":nsfw: News article"
             time.sleep(2)

@@ -2,7 +2,7 @@
 import asent # pylint: disable=unused-import
 import spacy
 
-def getSentiment(text):
+def get_sentiment(text):
     """ Sentiment analysis result """
     # load spacy pipeline
     nlp = spacy.load("en_core_web_lg")
