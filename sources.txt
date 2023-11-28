@@ -1,2 +1,6 @@
-https://www.csirt.gov.it/data/indexer/rss
-https://www.rainews.it/rss/scienzaetecnologia
+https://soranews24.com/category/japan/feed
+https://mainichi.jp/rss/etc/english_latest.rss
+https://japantoday.com/category/national/feed
+https://www.japantimes.co.jp/feed/
+https://www.tokyoreporter.com/feed
+https://newsonjapan.com/rss/top.xml
