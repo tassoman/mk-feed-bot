@@ -1,10 +1,12 @@
-# RSS Newsfeed reader bot for Misskey
+# RSS Newsfeed reader bot for Misskey 😻
 
 This Python bot fetches RSS feeds every 5 minutes. Then "cherry pics" a news at time, each minute. Choosing from the freshest to the older posted.
 
 News and Notes flows are asyncronous, so that it can pick up always the fresher news an Note them as soon as possible.
 
 Notes will not bloat your Misskey profile, because get deleted if older than a month.
+
+![Artificial Image of a Cat Robot reading news](https://repository-images.githubusercontent.com/523881650/3c833d1a-a012-4414-9b94-aa6e7ec0f98a)
 
 ## Setup
 
