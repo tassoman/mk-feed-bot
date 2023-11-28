@@ -2,4 +2,5 @@ feedparser
 Misskey.py
 python-dotenv
 schedule
+asent
 pip-review

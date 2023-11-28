@@ -1,8 +1,10 @@
 # RSS Newsfeed reader bot for Misskey 😻
 
-This Python bot fetches RSS feeds every 5 minutes. Then "cherry pics" a news at time, each minute. Choosing from the freshest to the older posted.
+This Python bot posts RSS news from your chosen feeds. You can choose the frequency of posting (in minutes) and the amount of Notes to post each time.
 
-News and Notes flows are asyncronous, so that it can pick up always the fresher news an Note them as soon as possible.
+Before posting it starts a **sentiment analysis** then flags with CW (Content Warning) and :NSFW: if sentiment is negative. (war, deaths, bad news)
+
+News and Notes flows are asyncronous, so that it can pick up always the fresher news and Note as soon as possible.
 
 Notes will not bloat your Misskey profile, because get deleted if older than a month.
 
@@ -19,7 +21,6 @@ Please, follow this instructions once, before starting:
 - Remember to set `isBot = True`
 - Visit the page: `https://your.misskey.instance/settings/api`
 - Create a new API-key having at minimum `notes:write` privilege.
-- copy `.env-example` in `.env` file, fill in your configuration
 
 ### Prepare a Python virtual environment 
 
@@ -29,10 +30,26 @@ Please use python3. In latest GNU/Linux distros, it's already in as default. Oth
 2. `python -m venv .venv` Python sandboxed enviroment creation
 3. `. .venv/bin/activate` Environment activation
 4. `pip install -r requirements.txt` Dependencies installation
+5. `python -m spacy download en_core_web_lg` Gets sentiment analysis data (for NSFW posts)
+
+## Configuration
+
+Now you installed the software, you need a small amount of configuration.
 
 ### Fill the bot with RSS feed
 
-Edit file `sources.txt` and list a RSS url for every line.
+First of all, put the RSS Feed source URLS into the file `sources.txt`, line by line. 
+
+### Environment variables
+
+Now copy `.env-example` in `.env` file to fill in your personal configuration:
+
+- **HOST** your Misskey domain
+- **APIKEY** app's credentials created before
+- **VISIBILITY** choose [in which Timeline to post](https://misskey-hub.net/en/docs/features/timeline.html).
+- **LOCAL** boolean for federated Notes
+- **EVERY_MINUTES** posting frequency
+- **HOW_MANY** posted Notes amount
 
 ## Run!
 
@@ -41,10 +58,6 @@ Inside your python environment:
 `(env) $ python feed_bot.py`
 
 It will setup if needed. Then will start three scheduled jobs.
-
-- Fetch RSS every 5 minutes
-- Post Notes every minute
-- Delete Posted notes older than one month. Hourly.
 
 ### Service daemon configuration
 

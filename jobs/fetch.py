@@ -20,7 +20,7 @@ def install():
             "link"  TEXT NOT NULL UNIQUE,
             "title" TEXT NOT NULL,
             "body"  TEXT,
-            "noted" INTEGER NOT NULL DEFAULT 0,
+            "sentiment" DECIMAL(1,2),
             "noteId"        TEXT,
             "notedAt"       INTEGER,
             PRIMARY KEY("id" AUTOINCREMENT)
@@ -32,6 +32,7 @@ def install():
         CREATE TABLE IF NOT EXISTS "feeds" (
             "id"    INTEGER NOT NULL UNIQUE,
             "url"   TEXT NOT NULL UNIQUE,
+            "title" TEXT,
             PRIMARY KEY("id" AUTOINCREMENT)
         );
     ''')
