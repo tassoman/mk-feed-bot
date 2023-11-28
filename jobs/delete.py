@@ -1,3 +1,4 @@
+""" Delete module """
 import sqlite3
 import os
 import time
@@ -7,6 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def purge():
+    """ Clean posts older than a month """
     db = sqlite3.connect('feed-bot.sqlite')
     mk = Misskey(os.getenv('HOST'), i=os.getenv('APIKEY'))
     now = int(time.time())
@@ -22,12 +24,10 @@ def purge():
 
     if notes_to_delete:
         for n in notes_to_delete:
-            try:
-                time.sleep(2)
-                denoted = mk.notes_delete(note_id=n[0])
+            time.sleep(2)
+            denoted = mk.notes_delete(note_id=n[0])
+            if denoted is not None:
                 c.execute('DELETE FROM news WHERE noteId = ?', (n[0],))
-            except Exception as err:
-                print(err)
     else:
         print('No notes to delete.')
 

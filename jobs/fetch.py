@@ -1,9 +1,13 @@
-import feedparser, sqlite3, time
+""" Fetch Module """
+import time
+import sqlite3
+import feedparser
 from dotenv import load_dotenv
 
 load_dotenv()
 
 def install():
+    """ Create SQLite DB if not exists """
     print ('DB Setup ...')
     db = sqlite3.connect('feed-bot.sqlite')
     c = db.cursor()
@@ -32,25 +36,8 @@ def install():
         );
     ''')
 
-'''
-    for url in flist:
-        c = db.cursor()
-        # Check if the URL already exists in the "feeds" table
-        c.execute("SELECT id FROM feeds WHERE url=?", (url,))
-        existing_record = c.fetchone()
-
-        if existing_record is None:
-            # If the URL doesn't exist, insert it into the "feeds" table
-            c.execute("INSERT INTO feeds (url) VALUES (?)", (url,))
-        else:
-            print(f"URL '{url}' already exists in the 'feeds' table. Skipping.")
-
-    # Commit changes to the database
-    db.commit()
-    db.close()
-'''
-
 def fetch_and_insert_feeds(url):
+    """ Core function """
     feed = feedparser.parse(url)
     website = feed.feed.title
 
@@ -79,14 +66,14 @@ def fetch_and_insert_feeds(url):
             ''', (website, published_at, link, title, body))
             db.commit()
 
-        except sqlite3.IntegrityError as e:
+        except sqlite3.IntegrityError:
             pass
 
         db.close()
 
 def add_news():
-
-    with open("sources.txt") as fp:
+    """ SQLite db table population """
+    with open("sources.txt", encoding='utf8') as fp:
         flist = [l.strip() for l in fp]
         fp.close()
 
