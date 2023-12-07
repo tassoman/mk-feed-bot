@@ -4,3 +4,5 @@ python-dotenv
 schedule
 asent
 pip-review
+pylint
+pre-commit
