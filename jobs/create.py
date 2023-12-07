@@ -40,7 +40,7 @@ def publish_note():
                 'text': "\n<b>" + d[4] + "</b>\n" + d[5] + " <i>(" +d[1] + ")</i>\n\n" + d[3],
                 'cw': None
             }
-            if note_params['sentiment'] < 0: 
+            if note_params['sentiment'] < 0:
                 note_params['cw'] = ":nsfw: News article flagged CW"
             time.sleep(2)
             try:
