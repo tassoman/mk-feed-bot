@@ -15,7 +15,6 @@ repos:
         entry: pylint
         language: system
         types: [python]
-        files: feed_bot.py
 #        args:
 #            [
 #               "-rn", # Only display messages
