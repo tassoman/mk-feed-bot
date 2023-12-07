@@ -28,10 +28,10 @@ def purge():
             time.sleep(2)
             try:
                 denoted = mk.notes_delete(note_id=n[0])
+                if denoted is not None:
+                    c.execute('DELETE FROM news WHERE noteId = ?', (n[0],))
             except MisskeyAPIException:
                 pass
-            if denoted is not None:
-                c.execute('DELETE FROM news WHERE noteId = ?', (n[0],))
     else:
         print('No notes to delete.')
 
