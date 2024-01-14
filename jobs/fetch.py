@@ -40,7 +40,10 @@ def install():
 def fetch_and_insert_feeds(url):
     """ Core function """
     feed = feedparser.parse(url)
-    website = feed.feed.title
+    try:
+        website = feed.feed.title
+    except Exception:
+        website = None
 
     for entry in feed.entries:
         # Check if 'published_parsed' exists in the entry
@@ -57,20 +60,20 @@ def fetch_and_insert_feeds(url):
         body = entry.summary if hasattr(entry, 'summary') else ''
 
         # Insert feed data into the "news" table
-        db = sqlite3.connect('feed-bot.sqlite')
-        c = db.cursor()
-
         try:
+            db = sqlite3.connect('feed-bot.sqlite')
+            c = db.cursor()
             c.execute('''
                 INSERT INTO news (source, publishedAt, link, title, body)
                 VALUES (?, ?, ?, ?, ?)
             ''', (website, published_at, link, title, body))
             db.commit()
-
         except sqlite3.IntegrityError:
             pass
-
-        db.close()
+        except Exception as e:
+            print(f"ERRORE: {e}")
+        finally:
+            db.close()
 
 def add_news():
     """ SQLite db table population """
