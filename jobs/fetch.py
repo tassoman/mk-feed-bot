@@ -39,13 +39,10 @@ def install():
 
 def fetch_and_insert_feeds(url):
     """ Core function """
-    feed = feedparser.parse(url)
-    try:
-        website = feed.feed.title
-    except Exception:
-        website = None
+    data = feedparser.parse(url)
+    website = data.feed.get('title', None)
 
-    for entry in feed.entries:
+    for entry in data.entries:
         # Check if 'published_parsed' exists in the entry
         if 'published_parsed' in entry:
             published_at = int(time.mktime(entry.published_parsed))
@@ -70,7 +67,7 @@ def fetch_and_insert_feeds(url):
             db.commit()
         except sqlite3.IntegrityError:
             pass
-        except Exception as e:
+        except sqlite3.OperationalError as e:
             print(f"ERRORE: {e}")
         finally:
             db.close()
