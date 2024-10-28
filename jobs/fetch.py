@@ -1,6 +1,7 @@
 """ Fetch Module """
 import time
 import sqlite3
+import http
 import feedparser
 from dotenv import load_dotenv
 
@@ -39,8 +40,11 @@ def install():
 
 def fetch_and_insert_feeds(url):
     """ Core function """
-    data = feedparser.parse(url)
-    website = data.feed.get('title', None)
+    try:
+        data = feedparser.parse(url)
+        website = data.feed.get('title', None)
+    except http.client.RemoteDisconnected as e:
+        print(f"ERROR: {e}")
 
     for entry in data.entries:
         # Check if 'published_parsed' exists in the entry
