@@ -8,7 +8,7 @@ News and Notes flows are asyncronous, so that it can pick up always the fresher 
 
 Notes will not bloat your Misskey profile, because get deleted if older than a month.
 
-![Artificial Image of a Cat Robot reading news](https://repository-images.githubusercontent.com/523881650/3c833d1a-a012-4414-9b94-aa6e7ec0f98a)
+![Artificial Image of a Cat Robot reading news](https://repository-images.githubusercontent.com/523881650/a535ab44-0292-4c0b-83c1-a37b05619d10)
 
 ## Setup
 
