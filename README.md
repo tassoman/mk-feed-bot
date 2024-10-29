@@ -8,7 +8,7 @@ News and Notes flows are asyncronous, so that it can pick up always the fresher 
 
 Notes will not bloat your Misskey profile, because get deleted if older than a month.
 
-![Artificial Image of a Cat Robot reading news](https://repository-images.githubusercontent.com/523881650/3c833d1a-a012-4414-9b94-aa6e7ec0f98a)
+![Artificial Image of a Cat Robot reading news](https://repository-images.githubusercontent.com/523881650/a535ab44-0292-4c0b-83c1-a37b05619d10)
 
 ## Setup
 
@@ -22,9 +22,9 @@ Please, follow this instructions once, before starting:
 - Visit the page: `https://your.misskey.instance/settings/api`
 - Create a new API-key having at minimum `notes:write` privilege.
 
-### Prepare a Python virtual environment 
+### Prepare a Python virtual environment
 
-Please use python3. In latest GNU/Linux distros, it's already in as default. Otherwise you'll need `python3-venv` package with dependencies. 
+Please use python3. In latest GNU/Linux distros, it's already in as default. Otherwise you'll need `python3-venv` package with dependencies.
 
 1. `git clone` this repository, to get the source code, or download the zip file
 2. `python -m venv .venv` Python sandboxed enviroment creation
@@ -38,7 +38,7 @@ Now you installed the software, you need a small amount of configuration.
 
 ### Fill the bot with RSS feed
 
-First of all, put the RSS Feed source URLS into the file `sources.txt`, line by line. 
+First of all, put the RSS Feed source URLS into the file `sources.txt`, line by line.
 
 ### Environment variables
 
@@ -65,7 +65,7 @@ You probably want to run it detached from the console by using `nohup` or runnin
 
 The software has ability to avoid multiple concurrent runs.
 
-## Stop! 
+## Stop!
 
 To stop it, just press `CTRL+C` in the console.
 
@@ -74,3 +74,11 @@ To exit the Python environment type: `deactivate`. You're aware of activation be
 ## Upgrade
 
 It's super easy, just Stop! Then `git pull` to check for updates. Then `pip-review -a` to update the libraries. Needs a restart to get things done.
+
+## Development
+
+If you plan to contribute, please run this command, after installation noted before.
+
+```bash
+pre-commmit install
+```
