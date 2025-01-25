@@ -27,7 +27,7 @@ def publish_note():
     mk = Misskey(os.getenv('HOST'), i=os.getenv('APIKEY'))
 
     c.execute('''
-        SELECT * FROM news 
+        SELECT * FROM news
         WHERE notedAt IS NULL OR notedAt = ''
         ORDER BY publishedAt DESC LIMIT ?
     ''', str(env['quantity']))
@@ -40,7 +40,7 @@ def publish_note():
                 'text': "\n<b>" + d[4] + "</b>\n" + d[5] + " <i>(" +d[1] + ")</i>\n\n" + d[3],
                 'cw': None
             }
-            if note_params['sentiment'] < 0:
+            if note_params['sentiment'] < 1:
                 note_params['cw'] = ":nsfw: News article flagged CW"
             time.sleep(2)
             try:

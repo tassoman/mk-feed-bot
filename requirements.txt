@@ -1,8 +1,9 @@
+pip
 feedparser
 Misskey.py
 python-dotenv
 schedule
-asent
+tweetnlp
 pip-review
 pylint
 pre-commit

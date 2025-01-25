@@ -1,14 +1,14 @@
 """ Sentiment Analysis Module """
-import asent # pylint: disable=unused-import
-import spacy
+import tweetnlp
+
+# GET DATASET (MULTILINGUAL)
+for l in ['english', 'italian', 'japanese']:
+    dataset_multilingual, label2id_multilingual = tweetnlp.load_dataset('sentiment', multilingual=True, task_language=l)
+
+model = tweetnlp.load_model('sentiment', multilingual=True)
 
 def get_sentiment(text):
     """ Sentiment analysis result """
-    # load spacy pipeline
-    nlp = spacy.load("en_core_web_lg")
-    # add the rule-based sentiment model
-    nlp.add_pipe("asent_en_v1")
-    sentiment = nlp(text)
-    #print(f"totale: {doc._.polarity.compound}")
-
-    return sentiment._.polarity.compound
+    output = model.sentiment(text, return_probability=True)
+    print(output)
+    return output['label']
