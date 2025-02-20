@@ -1,4 +1,5 @@
 """ Fetch Module """
+import logging
 import time
 import sqlite3
 import feedparser
@@ -36,11 +37,15 @@ def install():
             PRIMARY KEY("id" AUTOINCREMENT)
         );
     ''')
+    logging.debug('SQLite DB was created')
 
 def fetch_and_insert_feeds(url):
     """ Core function """
     data = feedparser.parse(url)
+    logging.debug('Fetching URL: %s', url)
+
     website = data.feed.get('title', None)
+    logging.debug('Website is: %s', website)
 
     for entry in data.entries:
         # Check if 'published_parsed' exists in the entry
@@ -68,15 +73,15 @@ def fetch_and_insert_feeds(url):
         except sqlite3.IntegrityError:
             pass
         except sqlite3.OperationalError as e:
-            print(f"ERRORE: {e}")
+            logging.error('SQLite Operational Error: %s', e)
         finally:
             db.close()
 
 def add_news():
     """ SQLite db table population """
     with open("sources.txt", encoding='utf8') as fp:
-        flist = [l.strip() for l in fp]
-        fp.close()
+        flist = [l.strip() for l in fp if l.strip()]  # Filter out empty lines
+        logging.debug('Sources count: %d', len(flist))
 
     # Fetch and insert feeds for each URL in "sources.txt"
     for url in flist:

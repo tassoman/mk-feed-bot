@@ -3,6 +3,7 @@ import os
 import sys
 import signal
 import time
+import logging
 import schedule
 from dotenv import load_dotenv
 from jobs.fetch import install, add_news
@@ -11,6 +12,17 @@ from jobs.create import publish_note
 
 load_dotenv()
 
+debug_mode = os.getenv('DEBUG', 'False').lower() \
+        in ('true', '1', 't', 'on', 'ok', 'v', 'vero')
+
+# il debug va messo nella configurazione
+if debug_mode:
+    logging.basicConfig(level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s')
+else:
+    logging.basicConfig(filename='feed_bot.log',level=logging.WARNING,
+    format='%(asctime)s - %(levelname)s - %(message)s')
+
 # Init
 install()
 add_news()
@@ -18,21 +30,29 @@ publish_note()
 every = os.getenv('EVERY_MINUTES', '60')
 
 ### Schedules
-schedule.every(15).minutes.do(add_news)
+schedule.every(10).minutes.do(add_news)
+logging.debug('Fetching Feeds every 10 minutes.')
+
 schedule.every(int(every)).minutes.do(publish_note)
+logging.debug('Posting every %s minutes.', every)
+
 schedule.every().day.do(purge)
+logging.debug('Purging posts daily')
 
 PID_FILE = "feed-bot.pid"
+logging.debug('Pid file is: %s', PID_FILE)
 
 def create_pid_file():
     """ Creating  pid file """
     with open(PID_FILE, 'w', encoding='utf8') as f:
         f.write(str(os.getpid()))
+        logging.debug('Creating pid file')
 
 def remove_pid_file():
     """ Removing pid file """
     if os.path.exists(PID_FILE):
         os.remove(PID_FILE)
+        logging.debug('Removing pid file')
 
 def signal_handler():
     """ Signal handler """

@@ -3,15 +3,17 @@ from datetime import datetime
 import sqlite3
 import time
 import os
+import logging
 from misskey import Misskey
 from misskey.exceptions import MisskeyAPIException
 from dotenv import load_dotenv
-from jobs.sentiment import get_sentiment
 
 load_dotenv()
+
+## Questo va spostato nella configurazione
 env = {
     'local_only': os.getenv('LOCAL', 'False').lower() \
-        in ('true', '1', 't', 'on', 'ok'),
+        in ('true', '1', 't', 'on', 'ok', 'v', 'vero'),
     'visibility': os.getenv('VISIBILITY', 'public').lower(),
     'frequency': int(os.getenv('EVERY_MINUTES', '60')),
     'quantity': int(os.getenv('HOW_MANY', '1'))
@@ -19,27 +21,35 @@ env = {
 
 def publish_note():
     """ Takes the latest published news and posts a note """
-    if env['quantity'] >= env['frequency']//2:
-        env['quantity'] = env['frequency']//2-1
+    if env['frequency'] == 2:
+        env['quantity'] = 1
+    elif env['frequency'] == 1:
+        env['quantity'] = 1
+    else:
+        if env['quantity'] >= env['frequency']//2:
+            env['quantity'] = env['frequency']//2-1
+    logging.debug('Amount chosen: %d', env['quantity'])
 
     db = sqlite3.connect('feed-bot.sqlite')
     c = db.cursor()
     mk = Misskey(os.getenv('HOST'), i=os.getenv('APIKEY'))
 
     c.execute('''
-        SELECT * FROM news 
+        SELECT * FROM news
         WHERE notedAt IS NULL OR notedAt = ''
         ORDER BY publishedAt DESC LIMIT ?
     ''', str(env['quantity']))
     data = c.fetchall()
+    logging.debug('Posting %d notes', len(data))
 
     if data is not None:
         for d in data:
             note_params = {
-                'sentiment': get_sentiment(d[4] + d[5]),
+                'sentiment': 1, # HARD WIRED SENTIMENT
                 'text': "\n<b>" + d[4] + "</b>\n" + d[5] + " <i>(" +d[1] + ")</i>\n\n" + d[3],
                 'cw': None
             }
+
             if note_params['sentiment'] < 0:
                 note_params['cw'] = ":nsfw: News article flagged CW"
             time.sleep(2)
@@ -54,6 +64,7 @@ def publish_note():
                 n_at = int(datetime.strptime(
                     api['createdNote']['createdAt'], '%Y-%m-%dT%H:%M:%S.%fZ'
                 ).timestamp())
+                logging.debug('Created Note: %s', api)
 
                 c.execute('''
                     UPDATE news SET sentiment = ?, noteId = ?, notedAt = ? WHERE id = ?
@@ -61,4 +72,5 @@ def publish_note():
                 db.commit()
             except MisskeyAPIException as e:
                 print(f"MK API error: {e}")
+                logging.error('Misskey API Error: %s', e)
     db.close()
