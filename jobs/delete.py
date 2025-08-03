@@ -1,19 +1,17 @@
 """ Delete module """
 import logging
-import sqlite3
 import time
 from misskey import Misskey
 from misskey.exceptions import MisskeyAPIException
 from modules.config import env
 
-def purge():
+def purge(db_obj):
     """ Clean posts older than a month """
-    db = sqlite3.connect('feed-bot.sqlite')
     mk = Misskey(env['host'], i=env['apikey'])
     now = int(time.time())
 
-    with db:
-        c = db.cursor()
+    with db_obj:
+        c = db_obj.cursor()
         c.execute('''
             SELECT noteId FROM news
             WHERE notedAt < ?
@@ -34,5 +32,3 @@ def purge():
                 logging.warning('Misskey API Error')
     else:
         print('No notes to delete.')
-
-    db.close()

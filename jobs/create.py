@@ -1,6 +1,5 @@
 """ Create Module """
 from datetime import datetime
-import sqlite3
 import time
 import os
 import logging
@@ -8,7 +7,7 @@ from misskey import Misskey
 from misskey.exceptions import MisskeyAPIException
 from modules.config import env
 
-def publish_note():
+def publish_note(db_obj):
     """ Takes the latest published news and posts a note """
     if env['frequency'] == 2:
         env['quantity'] = 1
@@ -19,8 +18,7 @@ def publish_note():
             env['quantity'] = env['frequency']//2-1
     logging.debug('Amount chosen: %d', env['quantity'])
 
-    db = sqlite3.connect('feed-bot.sqlite')
-    c = db.cursor()
+    c = db_obj.cursor()
     mk = Misskey(os.getenv('HOST'), i=os.getenv('APIKEY'))
 
     c.execute('''
@@ -58,8 +56,7 @@ def publish_note():
                 c.execute('''
                     UPDATE news SET sentiment = ?, noteId = ?, notedAt = ? WHERE id = ?
                 ''', (note_params['sentiment'], n_id, n_at, d[0]))
-                db.commit()
+                db_obj.commit()
             except MisskeyAPIException as e:
                 print(f"MK API error: {e}")
                 logging.error('Misskey API Error: %s', e)
-    db.close()

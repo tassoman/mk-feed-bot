@@ -5,10 +5,11 @@ import signal
 import time
 import logging
 import schedule
-from jobs.fetch import install, add_news
+from jobs.fetch import add_news
 from jobs.delete import purge
 from jobs.create import publish_note
 from modules.config import env
+from modules.db import open_db, close_db, install_db
 
 # il debug va messo nella configurazione
 if env['debug']:
@@ -18,49 +19,51 @@ else:
     logging.basicConfig(filename='feed_bot.log',level=logging.WARNING,
     format='%(asctime)s - %(levelname)s - %(message)s')
 
+db = open_db()
+
 # Init
-install()
-add_news()
-publish_note()
-every = os.getenv('EVERY_MINUTES', '60')
+install_db(db)
+add_news(db)
+publish_note(db)
 
 ### Schedules
-schedule.every(10).minutes.do(add_news)
+schedule.every(10).minutes.do(add_news, db)
 logging.debug('Fetching Feeds every 10 minutes.')
 
-schedule.every(int(every)).minutes.do(publish_note)
-logging.debug('Posting every %s minutes.', every)
+schedule.every(env['frequency']).minutes.do(publish_note, db)
+logging.debug('Posting every %s minutes.', env['frequency'])
 
-schedule.every().day.do(purge)
+schedule.every().day.do(purge, db)
 logging.debug('Purging posts daily')
 
-PID_FILE = "feed-bot.pid"
-logging.debug('Pid file is: %s', PID_FILE)
+logging.debug('Pid file is: %s', env['pid'])
 
 def create_pid_file():
     """ Creating  pid file """
-    with open(PID_FILE, 'w', encoding='utf8') as f:
+    with open(env['pid'], 'w', encoding='utf8') as f:
         f.write(str(os.getpid()))
         logging.debug('Creating pid file')
 
 def remove_pid_file():
     """ Removing pid file """
-    if os.path.exists(PID_FILE):
-        os.remove(PID_FILE)
+    if os.path.exists(env['pid']):
+        os.remove(env['pid'])
         logging.debug('Removing pid file')
 
-def signal_handler():
+def signal_handler(signum, frame):
     """ Signal handler """
-    print("Exiting loop...")
+    logging.debug('Signal %s was recieved in frame %s.', signum, frame)
+    logging.debug('Exiting Loop')
+    logging.debug('Closing DB Connection')
     remove_pid_file()
-    sys.exit()
+    sys.exit(0)
 
-def main_loop():
+def main_loop(db_obj):
     """ Main loop """
     signal.signal(signal.SIGINT, signal_handler)
 
     # Check if the PID file already exists
-    if os.path.exists(PID_FILE):
+    if os.path.exists(env['pid']):
         print("Another instance is already running. Exiting.")
         sys.exit()
 
@@ -78,7 +81,8 @@ def main_loop():
     except KeyboardInterrupt:
         print(" ")
     finally:
+        close_db(db_obj)
         remove_pid_file()
 
 if __name__ == "__main__":
-    main_loop()
+    main_loop(db)
