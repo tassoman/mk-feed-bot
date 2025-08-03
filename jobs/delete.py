@@ -1,18 +1,15 @@
 """ Delete module """
 import logging
 import sqlite3
-import os
 import time
 from misskey import Misskey
 from misskey.exceptions import MisskeyAPIException
-from dotenv import load_dotenv
-
-load_dotenv()
+from modules.config import env
 
 def purge():
     """ Clean posts older than a month """
     db = sqlite3.connect('feed-bot.sqlite')
-    mk = Misskey(os.getenv('HOST'), i=os.getenv('APIKEY'))
+    mk = Misskey(env['host'], i=env['apikey'])
     now = int(time.time())
 
     with db:

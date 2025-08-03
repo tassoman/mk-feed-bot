@@ -3,9 +3,6 @@ import logging
 import time
 import sqlite3
 import feedparser
-from dotenv import load_dotenv
-
-load_dotenv()
 
 def install():
     """ Create SQLite DB if not exists """

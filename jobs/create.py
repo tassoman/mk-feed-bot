@@ -6,18 +6,7 @@ import os
 import logging
 from misskey import Misskey
 from misskey.exceptions import MisskeyAPIException
-from dotenv import load_dotenv
-
-load_dotenv()
-
-## Questo va spostato nella configurazione
-env = {
-    'local_only': os.getenv('LOCAL', 'False').lower() \
-        in ('true', '1', 't', 'on', 'ok', 'v', 'vero'),
-    'visibility': os.getenv('VISIBILITY', 'public').lower(),
-    'frequency': int(os.getenv('EVERY_MINUTES', '60')),
-    'quantity': int(os.getenv('HOW_MANY', '1'))
-}
+from modules.config import env
 
 def publish_note():
     """ Takes the latest published news and posts a note """

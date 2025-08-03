@@ -5,18 +5,13 @@ import signal
 import time
 import logging
 import schedule
-from dotenv import load_dotenv
 from jobs.fetch import install, add_news
 from jobs.delete import purge
 from jobs.create import publish_note
-
-load_dotenv()
-
-debug_mode = os.getenv('DEBUG', 'False').lower() \
-        in ('true', '1', 't', 'on', 'ok', 'v', 'vero')
+from modules.config import env
 
 # il debug va messo nella configurazione
-if debug_mode:
+if env['debug']:
     logging.basicConfig(level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s')
 else:
