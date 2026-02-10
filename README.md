@@ -8,6 +8,9 @@ News and Notes flows are asyncronous, so that it can pick up always the fresher 
 
 Notes will not bloat your Misskey profile, because get deleted if older than a month.
 
+>[!TIP]
+> Featured on [Misskey Advent Calendar 2025, on December 12th](https://adventar.org/calendars/11291)
+
 ![Artificial Image of a Cat Robot reading news](https://repository-images.githubusercontent.com/523881650/a535ab44-0292-4c0b-83c1-a37b05619d10)
 
 ## Setup
