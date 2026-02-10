@@ -1,10 +1,15 @@
 """ Delete module """
 import logging
 import os
+import sys
 import time
+
 from misskey import Misskey
 from misskey.exceptions import MisskeyAPIException
 from dotenv import load_dotenv
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# pylint: disable=wrong-import-position
 from database import DB
 
 load_dotenv()

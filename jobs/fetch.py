@@ -1,40 +1,23 @@
 """ Fetch Module """
 import logging
+import os
 import sqlite3
+import sys
 import time
+
 import feedparser
 from dotenv import load_dotenv
-from database import DB
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# pylint: disable=wrong-import-position
+from database import DB, init_database
 
 load_dotenv()
 
 def install():
     """ Create SQLite DB if not exists """
     print ('DB Setup ...')
-    with DB.get_cursor() as cursor:
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS "news" (
-                "id"    INTEGER NOT NULL UNIQUE,
-                "source"        TEXT NOT NULL DEFAULT 'feed',
-                "publishedAt"   INTEGER NOT NULL,
-                "link"  TEXT NOT NULL UNIQUE,
-                "title" TEXT NOT NULL,
-                "body"  TEXT,
-                "sentiment" DECIMAL(1,2),
-                "noteId"        TEXT,
-                "notedAt"       INTEGER,
-                PRIMARY KEY("id" AUTOINCREMENT)
-            );
-        ''')
-
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS "feeds" (
-                "id"    INTEGER NOT NULL UNIQUE,
-                "url"   TEXT NOT NULL UNIQUE,
-                "title" TEXT,
-                PRIMARY KEY("id" AUTOINCREMENT)
-            );
-        ''')
+    init_database()
     logging.debug('SQLite DB was created')
 
 def fetch_and_insert_feeds(url):

@@ -28,10 +28,10 @@ class DatabaseConnection:
     @contextmanager
     def get_connection(self):
         """Get a thread-safe database connection.
-        
+
         Yields:
             sqlite3.Connection: Database connection object
-        
+
         Raises:
             Exception: Any database-related exception
         """
@@ -44,13 +44,12 @@ class DatabaseConnection:
         except Exception as exc:
             self._local.connection.rollback()
             raise exc
-        else:
-            self._local.connection.commit()
+        self._local.connection.commit()
 
     @contextmanager
     def get_cursor(self):
         """Get a database cursor within a connection context.
-        
+
         Yields:
             sqlite3.Cursor: Database cursor object
         """
