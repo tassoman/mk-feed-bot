@@ -2,11 +2,13 @@
 
 This Python bot posts RSS news from your chosen feeds. You can choose the frequency of posting (in minutes) and the amount of Notes to post each time.
 
-Before posting it starts a **sentiment analysis** then flags with CW (Content Warning) and :NSFW: if sentiment is negative. (war, deaths, bad news)
+While fetching news, it starts a **sentiment analysis** by using a **local model**: [vaderSentiment](https://vadersentiment.readthedocs.io/en/latest/pages/introduction.html).
 
-News and Notes flows are asyncronous, so that it can pick up always the fresher news and Note as soon as possible.
+If sentiment is classified _Neutral_ or _Negative_ posted Notes are flagged as CW (Content Warning) and :NSFW: (war, deaths, bad news)
 
-Notes will not bloat your Misskey profile, because get deleted if older than a month.
+News fetching and Notes posting flows are asyncronous, so that the bot can pick up always the fresher news and post as soon as possible.
+
+Notes will not bloat your Misskey profile, because get deleted when get older than a month.
 
 >[!TIP]
 > Featured on [Misskey Advent Calendar 2025, on December 12th](https://adventar.org/calendars/11291)
@@ -33,7 +35,6 @@ Please use python3. In latest GNU/Linux distros, it's already in as default. Oth
 2. `python -m venv .venv` Python sandboxed enviroment creation
 3. `. .venv/bin/activate` Environment activation
 4. `pip install -r requirements.txt` Dependencies installation
-5. `python -m spacy download en_core_web_lg` Gets sentiment analysis data (for NSFW posts)
 
 ## Configuration
 

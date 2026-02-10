@@ -16,10 +16,10 @@ load_dotenv()
 debug_mode = os.getenv('DEBUG', 'False').lower() \
         in ('true', '1', 't', 'on', 'ok', 'v', 'vero')
 
-# il debug va messo nella configurazione
 if debug_mode:
     logging.basicConfig(level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s')
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    stream=sys.stdout)
 else:
     logging.basicConfig(filename='feed_bot.log',level=logging.WARNING,
     format='%(asctime)s - %(levelname)s - %(message)s')

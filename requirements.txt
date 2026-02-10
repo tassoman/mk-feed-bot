@@ -4,4 +4,5 @@ python-dotenv
 schedule
 pip-review
 pylint
+vaderSentiment
 pre-commit

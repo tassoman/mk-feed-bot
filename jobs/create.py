@@ -21,8 +21,10 @@ env = {
         in ('true', '1', 't', 'on', 'ok', 'v', 'vero'),
     'visibility': os.getenv('VISIBILITY', 'public').lower(),
     'frequency': int(os.getenv('EVERY_MINUTES', '60')),
-    'quantity': int(os.getenv('HOW_MANY', '1'))
+    'quantity': int(os.getenv('HOW_MANY', '1')),
+    'sentiment': float(os.getenv('SENTIMENT', '0.05'))
 }
+logging.debug('Configuration loaded: %s', env)
 
 def publish_note():
     """ Takes the latest published news and posts a note """
@@ -48,16 +50,40 @@ def publish_note():
 
     if data is not None:
         for d in data:
+            raw_sentiment = d[6]
+            try:
+                if raw_sentiment is not None and raw_sentiment != '':
+                    sentiment_val = float(raw_sentiment)
+                else:
+                    sentiment_val = 0.0
+
+            except (TypeError, ValueError):
+                sentiment_val = 0.0
+
             note_params = {
-                'sentiment': 1,  # HARD WIRED SENTIMENT
+                'sentiment': sentiment_val,
                 'text': "\n<b>" + d[4] + "</b>\n" + d[5] + " <i>(" + d[1] + ")</i>\n\n" + d[3],
                 'cw': None
             }
 
-            if note_params['sentiment'] < 0:
+            logging.debug('Preparing note for id=%s sentiment=%s', d[0], note_params['sentiment'])
+
+            if note_params['sentiment'] < env['sentiment']:
                 note_params['cw'] = ":nsfw: News article flagged CW"
+                logging.warning('Article id=%s flagged CW (sentiment=%.2f < %s)',
+                                d[0],
+                                note_params['sentiment'],
+                                env['sentiment']
+                )
+            else:
+                logging.debug('Article id=%s passed sentiment threshold (%.2f >= %s)',
+                              d[0],
+                              note_params['sentiment'],
+                              env['sentiment']
+                )
             time.sleep(2)
             try:
+                logging.info('Posting note for news id=%s', d[0])
                 api = mk.notes_create(
                     text=note_params['text'],
                     visibility=env['visibility'],
@@ -74,6 +100,7 @@ def publish_note():
                     cursor.execute('''
                         UPDATE news SET sentiment = ?, noteId = ?, notedAt = ? WHERE id = ?
                     ''', (note_params['sentiment'], n_id, n_at, d[0]))
+                    logging.info('Updated DB for news id=%s with noteId=%s', d[0], n_id)
             except MisskeyAPIException as e:
                 print(f"MK API error: {e}")
                 logging.error('Misskey API Error: %s', e)

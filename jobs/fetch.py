@@ -4,6 +4,7 @@ import os
 import sqlite3
 import sys
 import time
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 import feedparser
 from dotenv import load_dotenv
@@ -19,6 +20,17 @@ def install():
     print ('DB Setup ...')
     init_database()
     logging.debug('SQLite DB was created')
+
+def sentiment_analysis(text):
+    """ Sentiment Analysis using VADER """
+    analyzer = SentimentIntensityAnalyzer()
+    sentiment_score = analyzer.polarity_scores(text)
+    compound_score = sentiment_score['compound']
+    rounded = round(compound_score, 2)
+    sample = (text[:200] + '...') if text and len(text) > 200 else text
+    logging.debug('Sentiment analysis raw=%.4f rounded=%.2f sample="%s"',
+                  compound_score, rounded, sample)
+    return rounded
 
 def fetch_and_insert_feeds(url):
     """ Core function """
@@ -46,11 +58,12 @@ def fetch_and_insert_feeds(url):
         try:
             with DB.get_cursor() as cursor:
                 cursor.execute('''
-                    INSERT INTO news (source, publishedAt, link, title, body)
-                    VALUES (?, ?, ?, ?, ?)
-                ''', (website, published_at, link, title, body))
+                    INSERT INTO news (source, publishedAt, link, title, body, sentiment)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ''', (website, published_at, link, title, body, sentiment_analysis(body)))
+                logging.info('Inserted feed: %s (%s)', title, link)
         except sqlite3.IntegrityError:
-            pass
+            logging.debug('Duplicate entry skipped: %s', link)
         except sqlite3.OperationalError as e:
             logging.error('SQLite Operational Error: %s', e)
 
