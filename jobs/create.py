@@ -1,12 +1,12 @@
 """ Create Module """
 from datetime import datetime
-import sqlite3
 import time
 import os
 import logging
 from misskey import Misskey
 from misskey.exceptions import MisskeyAPIException
 from dotenv import load_dotenv
+from database import DB
 
 load_dotenv()
 
@@ -30,23 +30,22 @@ def publish_note():
             env['quantity'] = env['frequency']//2-1
     logging.debug('Amount chosen: %d', env['quantity'])
 
-    db = sqlite3.connect('feed-bot.sqlite')
-    c = db.cursor()
     mk = Misskey(os.getenv('HOST'), i=os.getenv('APIKEY'))
 
-    c.execute('''
-        SELECT * FROM news
-        WHERE notedAt IS NULL OR notedAt = ''
-        ORDER BY publishedAt DESC LIMIT ?
-    ''', str(env['quantity']))
-    data = c.fetchall()
+    with DB.get_cursor() as cursor:
+        cursor.execute('''
+            SELECT * FROM news
+            WHERE notedAt IS NULL OR notedAt = ''
+            ORDER BY publishedAt DESC LIMIT ?
+        ''', str(env['quantity']))
+        data = cursor.fetchall()
     logging.debug('Posting %d notes', len(data))
 
     if data is not None:
         for d in data:
             note_params = {
-                'sentiment': 1, # HARD WIRED SENTIMENT
-                'text': "\n<b>" + d[4] + "</b>\n" + d[5] + " <i>(" +d[1] + ")</i>\n\n" + d[3],
+                'sentiment': 1,  # HARD WIRED SENTIMENT
+                'text': "\n<b>" + d[4] + "</b>\n" + d[5] + " <i>(" + d[1] + ")</i>\n\n" + d[3],
                 'cw': None
             }
 
@@ -66,11 +65,10 @@ def publish_note():
                 ).timestamp())
                 logging.debug('Created Note: %s', api)
 
-                c.execute('''
-                    UPDATE news SET sentiment = ?, noteId = ?, notedAt = ? WHERE id = ?
-                ''', (note_params['sentiment'], n_id, n_at, d[0]))
-                db.commit()
+                with DB.get_cursor() as cursor:
+                    cursor.execute('''
+                        UPDATE news SET sentiment = ?, noteId = ?, notedAt = ? WHERE id = ?
+                    ''', (note_params['sentiment'], n_id, n_at, d[0]))
             except MisskeyAPIException as e:
                 print(f"MK API error: {e}")
                 logging.error('Misskey API Error: %s', e)
-    db.close()

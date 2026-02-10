@@ -1,42 +1,40 @@
 """ Fetch Module """
 import logging
-import time
 import sqlite3
+import time
 import feedparser
 from dotenv import load_dotenv
+from database import DB
 
 load_dotenv()
 
 def install():
     """ Create SQLite DB if not exists """
     print ('DB Setup ...')
-    db = sqlite3.connect('feed-bot.sqlite')
-    c = db.cursor()
+    with DB.get_cursor() as cursor:
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS "news" (
+                "id"    INTEGER NOT NULL UNIQUE,
+                "source"        TEXT NOT NULL DEFAULT 'feed',
+                "publishedAt"   INTEGER NOT NULL,
+                "link"  TEXT NOT NULL UNIQUE,
+                "title" TEXT NOT NULL,
+                "body"  TEXT,
+                "sentiment" DECIMAL(1,2),
+                "noteId"        TEXT,
+                "notedAt"       INTEGER,
+                PRIMARY KEY("id" AUTOINCREMENT)
+            );
+        ''')
 
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS "news" (
-            "id"    INTEGER NOT NULL UNIQUE,
-            "source"        TEXT NOT NULL DEFAULT 'feed',
-            "publishedAt"   INTEGER NOT NULL,
-            "link"  TEXT NOT NULL UNIQUE,
-            "title" TEXT NOT NULL,
-            "body"  TEXT,
-            "sentiment" DECIMAL(1,2),
-            "noteId"        TEXT,
-            "notedAt"       INTEGER,
-            PRIMARY KEY("id" AUTOINCREMENT)
-        );
-    ''')
-    db.commit()
-
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS "feeds" (
-            "id"    INTEGER NOT NULL UNIQUE,
-            "url"   TEXT NOT NULL UNIQUE,
-            "title" TEXT,
-            PRIMARY KEY("id" AUTOINCREMENT)
-        );
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS "feeds" (
+                "id"    INTEGER NOT NULL UNIQUE,
+                "url"   TEXT NOT NULL UNIQUE,
+                "title" TEXT,
+                PRIMARY KEY("id" AUTOINCREMENT)
+            );
+        ''')
     logging.debug('SQLite DB was created')
 
 def fetch_and_insert_feeds(url):
@@ -63,19 +61,15 @@ def fetch_and_insert_feeds(url):
 
         # Insert feed data into the "news" table
         try:
-            db = sqlite3.connect('feed-bot.sqlite')
-            c = db.cursor()
-            c.execute('''
-                INSERT INTO news (source, publishedAt, link, title, body)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (website, published_at, link, title, body))
-            db.commit()
+            with DB.get_cursor() as cursor:
+                cursor.execute('''
+                    INSERT INTO news (source, publishedAt, link, title, body)
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (website, published_at, link, title, body))
         except sqlite3.IntegrityError:
             pass
         except sqlite3.OperationalError as e:
             logging.error('SQLite Operational Error: %s', e)
-        finally:
-            db.close()
 
 def add_news():
     """ SQLite db table population """

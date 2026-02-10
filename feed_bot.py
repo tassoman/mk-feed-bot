@@ -6,6 +6,7 @@ import time
 import logging
 import schedule
 from dotenv import load_dotenv
+from database import DB
 from jobs.fetch import install, add_news
 from jobs.delete import purge
 from jobs.create import publish_note
@@ -54,9 +55,10 @@ def remove_pid_file():
         os.remove(PID_FILE)
         logging.debug('Removing pid file')
 
-def signal_handler():
+def signal_handler(signum, frame):  # pylint: disable=unused-argument
     """ Signal handler """
     print("Exiting loop...")
+    DB.close_all()
     remove_pid_file()
     sys.exit()
 
@@ -83,6 +85,7 @@ def main_loop():
     except KeyboardInterrupt:
         print(" ")
     finally:
+        DB.close_all()
         remove_pid_file()
 
 if __name__ == "__main__":
