@@ -5,15 +5,14 @@ import sqlite3
 import sys
 import time
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-
 import feedparser
-from dotenv import load_dotenv
+import helpers
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # pylint: disable=wrong-import-position
 from database import DB, init_database
 
-load_dotenv()
+helpers.debug_mode()
 
 def install():
     """ Create SQLite DB if not exists """

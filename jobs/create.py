@@ -4,18 +4,16 @@ import logging
 import os
 import sys
 import time
-
 from misskey import Misskey
 from misskey.exceptions import MisskeyAPIException
-from dotenv import load_dotenv
+import helpers
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # pylint: disable=wrong-import-position
 from database import DB
 
-load_dotenv()
+helpers.debug_mode()
 
-## Questo va spostato nella configurazione
 env = {
     'local_only': os.getenv('LOCAL', 'False').lower() \
         in ('true', '1', 't', 'on', 'ok', 'v', 'vero'),

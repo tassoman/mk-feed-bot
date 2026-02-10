@@ -5,24 +5,13 @@ import signal
 import time
 import logging
 import schedule
-from dotenv import load_dotenv
+import helpers
 from database import DB
 from jobs.fetch import install, add_news
 from jobs.delete import purge
 from jobs.create import publish_note
 
-load_dotenv()
-
-debug_mode = os.getenv('DEBUG', 'False').lower() \
-        in ('true', '1', 't', 'on', 'ok', 'v', 'vero')
-
-if debug_mode:
-    logging.basicConfig(level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    stream=sys.stdout)
-else:
-    logging.basicConfig(filename='feed_bot.log',level=logging.WARNING,
-    format='%(asctime)s - %(levelname)s - %(message)s')
+helpers.debug_mode()
 
 # Init
 install()
